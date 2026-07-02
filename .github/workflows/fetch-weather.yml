@@ -1,4 +1,4 @@
-name: Fetch Weather Data (CWA)
+name: Fetch Weather Data
 
 on:
   schedule:
@@ -14,10 +14,28 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Run fetch script
+      - name: Fetch weather data
         env:
-          CWA_KEY: ${{ secrets.CWA_API_KEY }}
-        run: python3 fetch_weather.py
+          API_KEY: ${{ secrets.WEATHER_API_KEY }}
+        run: |
+          echo "[" > weather-data.json
+          first=true
+          for loc in '{"name":"台北北投","lat":"25.1167","lon":"121.5167"}' '{"name":"新北汐止","lat":"25.0667","lon":"121.6333"}' '{"name":"嘉義太保","lat":"23.4667","lon":"120.3333"}' '{"name":"台北中山","lat":"25.0667","lon":"121.5333"}' '{"name":"台北南港","lat":"25.0500","lon":"121.6000"}' '{"name":"新北三重","lat":"25.0667","lon":"121.4667"}' '{"name":"桃園蘆竹","lat":"25.0500","lon":"121.3000"}'
+          do
+            name=$(echo "$loc" | jq -r '.name')
+            lat=$(echo "$loc" | jq -r '.lat')
+            lon=$(echo "$loc" | jq -r '.lon')
+            url="https://api.weatherapi.com/v1/forecast.json?key=${API_KEY}&q=${lat},${lon}&days=1&aqi=yes&lang=zh"
+            data=$(curl -s "$url")
+            if [ "$first" = true ]; then
+              echo "{ \"name\": \"$name\", \"data\": $data }" >> weather-data.json
+              first=false
+            else
+              echo ",{ \"name\": \"$name\", \"data\": $data }" >> weather-data.json
+            fi
+            echo "Fetched $name"
+          done
+          echo "]" >> weather-data.json
 
       - name: Commit and push
         run: |
