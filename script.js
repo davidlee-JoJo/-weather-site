@@ -139,7 +139,7 @@ async function fetchAllWeather() {
     container.innerHTML = '';
     results.forEach(item => {
       const card = renderCard(item, item.name);
-        container.appendChild(card);
+      if (card) container.appendChild(card);
     });
     const updateEl = document.getElementById('updateTime');
     const now = new Date();
