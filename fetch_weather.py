@@ -17,11 +17,13 @@ LOCATIONS = [
 ]
 
 BASE_URL = 'https://opendata.cwa.gov.tw/api/v1/rest/datastore/F-D0047-001'
+ELEMENTS = '溫度,3小時降雨機率,天氣現象,體感溫度,相對濕度'
+TIMEOUT = 30
 
 def fetch_county(county):
-    url = f'{BASE_URL}?Authorization={API_KEY}&locationName={county}'
+    url = f'{BASE_URL}?Authorization={API_KEY}&locationName={county}&elementName={ELEMENTS}'
     req = urllib.request.Request(url)
-    with urllib.request.urlopen(req) as resp:
+    with urllib.request.urlopen(req, timeout=TIMEOUT) as resp:
         return json.loads(resp.read())
 
 def find_location(raw_data, town_name):
@@ -42,7 +44,7 @@ def build_cwa_data(location):
     pops = extract_element(location, '3小時降雨機率')
     weathers = extract_element(location, '天氣現象')
     feels = extract_element(location, '體感溫度')
-    humidity = extract_element(location, '相對濕度')
+    humidity_list = extract_element(location, '相對濕度')
 
     hours = []
     for t in temps:
@@ -74,9 +76,9 @@ def build_cwa_data(location):
                 break
 
         hum_val = ''
-        for h in humidity:
-            if h.get('DataTime', '') == dt_str:
-                hum_val = h['ElementValue'][0].get('RelativeHumidity', '')
+        for h_item in humidity_list:
+            if h_item.get('DataTime', '') == dt_str:
+                hum_val = h_item['ElementValue'][0].get('RelativeHumidity', '')
                 break
 
         hours.append({'time': dt_str, 'temp': temp_val, 'pop': pop_val,
@@ -95,16 +97,23 @@ def build_cwa_data(location):
 
 results = []
 for name, county, town in LOCATIONS:
-    raw = fetch_county(county)
-    loc = find_location(raw, town)
-    if loc:
-        data = build_cwa_data(loc)
-        results.append({'name': name, 'data': data})
-        print(f'Fetched {name} ({county}/{town})')
-    else:
-        print(f'ERROR: {name} ({county}/{town}) not found', file=sys.stderr)
+    try:
+        raw = fetch_county(county)
+        loc = find_location(raw, town)
+        if loc:
+            data = build_cwa_data(loc)
+            results.append({'name': name, 'data': data})
+            print(f'Fetched {name} ({county}/{town})')
+        else:
+            print(f'ERROR: {name} ({county}/{town}) not found', file=sys.stderr)
+    except Exception as e:
+        print(f'ERROR fetching {name} ({county}/{town}): {e}', file=sys.stderr)
+
+if not results:
+    print('ERROR: no data fetched', file=sys.stderr)
+    sys.exit(1)
 
 with open('weather-data.json', 'w', encoding='utf-8') as f:
     json.dump(results, f, ensure_ascii=False, indent=2)
 
-print('Done')
+print(f'Done, {len(results)} locations')
