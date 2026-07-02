@@ -1,4 +1,6 @@
 const DATA_URL = 'weather-data.json';
+const CONFIG_URL = 'config.json';
+let GH_PAT = null;
 
 const CN2TW = {
   '小阵雨': '小陣雨', '局部多云': '局部多雲', '薄雾': '薄霧', '烟霾': '煙霾',
@@ -139,9 +141,45 @@ function renderCard(data, locName) {
   return card;
 }
 
-async function fetchAllWeather() {
+async function loadConfig() {
+  try {
+    const res = await fetch(CONFIG_URL + '?t=' + Date.now());
+    if (res.ok) {
+      const cfg = await res.json();
+      GH_PAT = cfg.gh_pat;
+    }
+  } catch (e) { /* ignore */ }
+}
+
+async function triggerWorkflow() {
+  if (!GH_PAT) return;
+  const statusEl = document.getElementById('refreshStatus');
+  if (statusEl) statusEl.textContent = '正在請求更新...';
+  try {
+    await fetch('https://api.github.com/repos/davidlee-JoJo/-weather-site/actions/workflows/fetch-weather.yml/dispatches', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + GH_PAT,
+        'Content-Type': 'application/json',
+        'User-Agent': 'weather-site'
+      },
+      body: JSON.stringify({ ref: 'main' })
+    });
+    if (statusEl) statusEl.textContent = '已請求更新，請稍候...';
+    setTimeout(() => { if (statusEl) statusEl.textContent = ''; }, 5000);
+  } catch (e) {
+    if (statusEl) statusEl.textContent = '更新請求失敗';
+  }
+}
+
+async function fetchAllWeather(dispatch = false) {
   const container = document.getElementById('cardsContainer');
   container.innerHTML = '<div class="loading">載入中...</div>';
+
+  if (dispatch) {
+    if (!GH_PAT) await loadConfig();
+    await triggerWorkflow();
+  }
 
   try {
     const res = await fetch(DATA_URL + '?t=' + Date.now());
@@ -165,5 +203,5 @@ async function fetchAllWeather() {
   }
 }
 
-fetchAllWeather();
+loadConfig().then(() => fetchAllWeather());
 setInterval(fetchAllWeather, 15 * 60 * 1000);
