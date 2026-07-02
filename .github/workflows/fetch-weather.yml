@@ -14,11 +14,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Fetch weather data from CWA
+      - name: Create fetch script
         env:
           CWA_KEY: ${{ secrets.CWA_API_KEY }}
         run: |
-          python3 << 'PYEOF'
+          cat > fetch_weather.py << 'ENDSCRIPT'
 import json, os, urllib.request, sys
 
 API_KEY = os.environ.get('CWA_KEY', '')
@@ -135,7 +135,12 @@ with open('weather-data.json', 'w', encoding='utf-8') as f:
     json.dump(results, f, ensure_ascii=False, indent=2)
 
 print('Done')
-PYEOF
+ENDSCRIPT
+
+      - name: Run fetch script
+        env:
+          CWA_KEY: ${{ secrets.CWA_API_KEY }}
+        run: python3 fetch_weather.py
 
       - name: Commit and push
         run: |
