@@ -1,6 +1,6 @@
 const DATA_URL = 'weather-data.json';
-const CONFIG_URL = 'config.json';
-let GH_PAT = null;
+
+const GH_PAT = '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';
 
 const CN2TW = {
   '小阵雨': '小陣雨', '局部多云': '局部多雲', '薄雾': '薄霧', '烟霾': '煙霾',
@@ -141,18 +141,7 @@ function renderCard(data, locName) {
   return card;
 }
 
-async function loadConfig() {
-  try {
-    const res = await fetch(CONFIG_URL + '?t=' + Date.now());
-    if (res.ok) {
-      const cfg = await res.json();
-      GH_PAT = cfg.gh_pat;
-    }
-  } catch (e) { /* ignore */ }
-}
-
 async function triggerWorkflow() {
-  if (!GH_PAT) return;
   const statusEl = document.getElementById('refreshStatus');
   if (statusEl) statusEl.textContent = '正在請求更新...';
   try {
@@ -177,7 +166,6 @@ async function fetchAllWeather(dispatch = false) {
   container.innerHTML = '<div class="loading">載入中...</div>';
 
   if (dispatch) {
-    if (!GH_PAT) await loadConfig();
     await triggerWorkflow();
   }
 
@@ -203,5 +191,5 @@ async function fetchAllWeather(dispatch = false) {
   }
 }
 
-loadConfig().then(() => fetchAllWeather());
+fetchAllWeather();
 setInterval(fetchAllWeather, 15 * 60 * 1000);
