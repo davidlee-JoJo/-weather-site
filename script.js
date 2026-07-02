@@ -1,6 +1,16 @@
 const DATA_URL = 'weather-data.json';
 
-const AQI_LABELS = ['', '良好', '中等', '對敏感族群不健康', '不健康', '非常不健康', '危害'];
+const CN2TW = {
+  '小阵雨': '小陣雨', '局部多云': '局部多雲', '薄雾': '薄霧', '烟霾': '煙霾',
+  '霾': '霾', '阴天': '陰天', '晴天': '晴天', '阵雨': '陣雨',
+  '小雨': '小雨', '局部小毛毛雨': '局部小毛毛雨', '局部小雨': '局部小雨',
+  '附近局部降雨': '鄰近局部降雨', '中雨': '中雨', '大雨': '大雨',
+  '雷雨': '雷雨', '大雷雨': '大雷雨', '多云': '多雲', '局部降雨': '局部降雨',
+  '附近有雷暴': '鄰近有雷暴', '局部毛毛雨': '局部毛毛雨', '毛毛雨': '毛毛雨',
+  '小阵雪': '小陣雪', '晴': '晴', '晴时多云': '晴時多雲',
+  '多云时晴': '多雲時晴', '多云短暂阵雨': '多雲短暫陣雨'
+};
+function toTW(text) { return CN2TW[text] || text; } = ['', '良好', '中等', '對敏感族群不健康', '不健康', '非常不健康', '危害'];
 const AQI_CLASSES = ['', 'good', 'moderate', 'unhealthy-sensitive', 'unhealthy', 'very-unhealthy', 'hazardous'];
 const AQI_RANGES = [0, 50, 100, 150, 200, 300, 500];
 
@@ -40,7 +50,7 @@ function renderCard(data, locName) {
   header.innerHTML = `
     <h2>${locName}</h2>
     <img src="https:${current.condition.icon}" alt="${current.condition.text}">
-    <span class="condition-text">${current.condition.text}</span>
+    <span class="condition-text">${toTW(current.condition.text)}</span>
   `;
   card.appendChild(header);
 
