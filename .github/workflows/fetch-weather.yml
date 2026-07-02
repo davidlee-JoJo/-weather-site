@@ -11,62 +11,37 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Fetch weather data
+      - name: Generate weather-data.json
         env:
           API_KEY: ${{ secrets.WEATHER_API_KEY }}
         run: |
-          cat > locations.json << 'EOF'
-          [
-            {"name":"台北北投","lat":25.1167,"lon":121.5167},
-            {"name":"新北汐止","lat":25.0667,"lon":121.6333},
-            {"name":"嘉義太保","lat":23.4667,"lon":120.3333},
-            {"name":"台北中山","lat":25.0667,"lon":121.5333},
-            {"name":"台北南港","lat":25.0500,"lon":121.6000},
-            {"name":"新北三重","lat":25.0667,"lon":121.4667},
-            {"name":"桃園南崁","lat":25.0500,"lon":121.3000}
-          ]
-          EOF
-
-          echo "[]" > weather-data.json
-
-          for row in $(echo "$(cat locations.json)" | jq -c '.[]'); do
-            lat=$(echo "$row" | jq -r '.lat')
-            lon=$(echo "$row" | jq -r '.lon')
-            name=$(echo "$row" | jq -r '.name')
-
-            url="https://api.weatherapi.com/v1/forecast.json?key=${API_KEY}&q=${lat},${lon}&days=1&aqi=yes&lang=zh"
-            echo "Fetching $name..."
-
-            response=$(curl -s "$url")
-            echo "$response" > "temp_${name}.json"
-
-            jq --arg name "$name" '{name: $name, data: .}' "temp_${name}.json" >> combined.json.tmp
-            echo "," >> combined.json.tmp
-            rm "temp_${name}.json"
-          done
-
-          echo "$(cat locations.json | jq '[.[] | {name: .name}]')" | jq '
-            reduce inputs as $item (.; . + [$item])
-          ' > /dev/null 2>&1
-
           python3 -c "
-import json
+import json, urllib.request, ssl, os
 
-with open('locations.json') as f:
-    locs = json.load(f)
+api_key = os.environ['API_KEY']
 
+locs = [
+    {'name':'台北北投','lat':25.1167,'lon':121.5167},
+    {'name':'新北汐止','lat':25.0667,'lon':121.6333},
+    {'name':'嘉義太保','lat':23.4667,'lon':120.3333},
+    {'name':'台北中山','lat':25.0667,'lon':121.5333},
+    {'name':'台北南港','lat':25.0500,'lon':121.6000},
+    {'name':'新北三重','lat':25.0667,'lon':121.4667},
+    {'name':'桃園南崁','lat':25.0500,'lon':121.3000}
+]
+
+ctx = ssl.create_default_context()
 results = []
 for loc in locs:
-    name = loc['name']
-    url = f'https://api.weatherapi.com/v1/forecast.json?key={API_KEY}&q={loc[\"lat\"]},{loc[\"lon\"]}&days=1&aqi=yes&lang=zh'
-    import urllib.request, ssl
-    ctx = ssl.create_default_context()
+    url = f'https://api.weatherapi.com/v1/forecast.json?key={api_key}&q={loc[\"lat\"]},{loc[\"lon\"]}&days=1&aqi=yes&lang=zh'
     req = urllib.request.Request(url)
     with urllib.request.urlopen(req, context=ctx) as resp:
-        results.append({'name': name, 'data': json.load(resp)})
+        results.append({'name': loc['name'], 'data': json.load(resp)})
 
 with open('weather-data.json', 'w') as f:
     json.dump(results, f, ensure_ascii=False)
+
+print(f'Fetched {len(results)} locations')
 "
 
       - name: Commit and push
@@ -74,5 +49,4 @@ with open('weather-data.json', 'w') as f:
           git config user.name "weather-bot"
           git config user.email "weather-bot@users.noreply.github.com"
           git add weather-data.json
-          git diff --staged --quiet || git commit -m "自動更新天氣資料 $(date '+%Y-%m-%d %H:%M')"
-          git push
+          git diff --staged --quiet || (git commit -m "自動更新天氣資料 $(date '+%Y-%m-%d %H:%M')" && git push)
