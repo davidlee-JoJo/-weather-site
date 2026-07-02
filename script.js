@@ -1,13 +1,4 @@
-const API_KEY = 'e1471b38f55e46e683880847260207';
-const LOCATIONS = [
-  { name: '台北北投', lat: 25.1167, lon: 121.5167 },
-  { name: '新北汐止', lat: 25.0667, lon: 121.6333 },
-  { name: '嘉義太保', lat: 23.4667, lon: 120.3333 },
-  { name: '台北中山', lat: 25.0667, lon: 121.5333 },
-  { name: '台北南港', lat: 25.0500, lon: 121.6000 },
-  { name: '新北三重', lat: 25.0667, lon: 121.4667 },
-  { name: '桃園南崁', lat: 25.0500, lon: 121.3000 }
-];
+const DATA_URL = 'weather-data.json';
 
 const CN2TW = {
   '小阵雨': '小陣雨', '局部多云': '局部多雲', '薄雾': '薄霧', '烟霾': '煙霾',
@@ -37,13 +28,6 @@ function getUVLevel(uv) {
   if (uv <= 7) return 3;
   if (uv <= 10) return 4;
   return 5;
-}
-
-async function fetchWeather(loc) {
-  const url = `https://api.weatherapi.com/v1/forecast.json?key=${API_KEY}&q=${loc.lat},${loc.lon}&days=1&aqi=yes&lang=zh`;
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return res.json();
 }
 
 function renderCard(data, locName) {
@@ -164,13 +148,23 @@ async function fetchAllWeather() {
   container.innerHTML = '<div class="loading">載入中...</div>';
 
   try {
-    const results = await Promise.all(LOCATIONS.map(loc => fetchWeather(loc)));
+    const res = await fetch(DATA_URL + '?t=' + Date.now());
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const results = await res.json();
     container.innerHTML = '';
-    results.forEach((data, i) => {
-      const card = renderCard(data, LOCATIONS[i].name);
+    results.forEach(item => {
+      const card = renderCard(item.data, item.name);
       container.appendChild(card);
     });
-    updateTime();
+    const updateEl = document.getElementById('updateTime');
+    const now = new Date();
+    // 從第一筆資料的觀測時間取得
+    if (results.length > 0) {
+      const obsTime = results[0].data.current.last_updated;
+      updateEl.textContent = '資料時間：' + obsTime;
+    } else {
+      updateEl.textContent = '最後更新：' + now.toLocaleString('zh-TW');
+    }
   } catch (err) {
     container.innerHTML = `<div class="loading">載入失敗：${err.message}</div>`;
   }
