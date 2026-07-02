@@ -1,6 +1,6 @@
 const DATA_URL = 'weather-data.json';
 
-const GH_PAT = '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';
+const GH_PAT = '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';
 
 const CN2TW = {
   '小阵雨': '小陣雨', '局部多云': '局部多雲', '薄雾': '薄霧', '烟霾': '煙霾',
