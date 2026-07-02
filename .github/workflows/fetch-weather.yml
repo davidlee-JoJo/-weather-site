@@ -3,6 +3,9 @@ name: Fetch Weather Data
 on:
   schedule:
     - cron: '*/15 * * * *'
+  push:
+    branches: [ main ]
+    paths: [ 'weather-data.json' ]
   workflow_dispatch:
 
 permissions:

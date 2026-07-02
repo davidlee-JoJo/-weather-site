@@ -139,11 +139,6 @@ function renderCard(data, locName) {
   return card;
 }
 
-function updateTime() {
-  const now = new Date();
-  document.getElementById('updateTime').textContent = '最後更新：' + now.toLocaleString('zh-TW');
-}
-
 async function fetchAllWeather() {
   const container = document.getElementById('cardsContainer');
   container.innerHTML = '<div class="loading">載入中...</div>';
