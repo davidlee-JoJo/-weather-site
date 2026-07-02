@@ -10,7 +10,8 @@ const CN2TW = {
   '小阵雪': '小陣雪', '晴': '晴', '晴时多云': '晴時多雲',
   '多云时晴': '多雲時晴', '多云短暂阵雨': '多雲短暫陣雨'
 };
-function toTW(text) { return CN2TW[text] || text; } = ['', '良好', '中等', '對敏感族群不健康', '不健康', '非常不健康', '危害'];
+function toTW(text) { return CN2TW[text] || text; }
+const AQI_LABELS = ['', '良好', '中等', '對敏感族群不健康', '不健康', '非常不健康', '危害'];
 const AQI_CLASSES = ['', 'good', 'moderate', 'unhealthy-sensitive', 'unhealthy', 'very-unhealthy', 'hazardous'];
 const AQI_RANGES = [0, 50, 100, 150, 200, 300, 500];
 
