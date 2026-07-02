@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import json, os, urllib.request, sys
+import json, os, urllib.request, urllib.parse, sys
 
 API_KEY = os.environ.get('CWA_KEY', '')
 if not API_KEY:
@@ -21,7 +21,8 @@ ELEMENTS = '溫度,3小時降雨機率,天氣現象,體感溫度,相對濕度'
 TIMEOUT = 30
 
 def fetch_county(county):
-    url = f'{BASE_URL}?Authorization={API_KEY}&locationName={county}&elementName={ELEMENTS}'
+    params = urllib.parse.urlencode({'Authorization': API_KEY, 'locationName': county, 'elementName': ELEMENTS})
+    url = f'{BASE_URL}?{params}'
     req = urllib.request.Request(url)
     with urllib.request.urlopen(req, timeout=TIMEOUT) as resp:
         return json.loads(resp.read())
