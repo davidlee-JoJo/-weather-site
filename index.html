@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>台灣三地天氣資訊</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>台灣三地天氣資訊</h1>
+    <div class="header-controls">
+      <span class="update-time" id="updateTime"></span>
+      <button id="refreshBtn" onclick="fetchAllWeather()">重新整理</button>
+    </div>
+  </header>
+  <main id="cardsContainer">
+    <div class="loading">載入中...</div>
+  </main>
+  <footer>
+    <p>資料來源：WeatherAPI.com | 每 30 分鐘自動更新</p>
+  </footer>
+  <script src="script.js"></script>
+</body>
+</html>
