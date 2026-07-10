@@ -147,7 +147,7 @@ async function fetchAllWeather() {
     const res = await fetch(DATA_URL + '?t=' + Date.now());
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const json = await res.json();
-    const results = Array.isArray(json) ? json : json.data;
+    const results = json.data ? json.data : json;
     container.innerHTML = '';
     results.forEach(item => {
       const card = renderCard(item.data, item.name);
