@@ -1,0 +1,11 @@
+name = "weather-site-api"
+main = "worker.js"
+compatibility_date = "2024-12-18"
+
+[[kv_namespaces]]
+binding = "WEATHER_KV"
+id = "5908f7c9d55643db8a7a18f68fe58982"
+preview_id = "5908f7c9d55643db8a7a18f68fe58982"
+
+[triggers]
+cron = ["*/15 * * * *"]

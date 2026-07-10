@@ -1,6 +1,4 @@
-const DATA_URL = 'weather-data.json';
-
-const GH_PAT = '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';
+const DATA_URL = 'https://weather-site-api.davidlee414.workers.dev/api/weather';
 
 const CN2TW = {
   '小阵雨': '小陣雨', '局部多云': '局部多雲', '薄雾': '薄霧', '烟霾': '煙霾',
@@ -141,33 +139,9 @@ function renderCard(data, locName) {
   return card;
 }
 
-async function triggerWorkflow() {
-  const statusEl = document.getElementById('refreshStatus');
-  if (statusEl) statusEl.textContent = '正在請求更新...';
-  try {
-    await fetch('https://api.github.com/repos/davidlee-JoJo/-weather-site/actions/workflows/fetch-weather.yml/dispatches', {
-      method: 'POST',
-      headers: {
-        'Authorization': 'Bearer ' + GH_PAT,
-        'Content-Type': 'application/json',
-        'User-Agent': 'weather-site'
-      },
-      body: JSON.stringify({ ref: 'main' })
-    });
-    if (statusEl) statusEl.textContent = '已請求更新，請稍候...';
-    setTimeout(() => { if (statusEl) statusEl.textContent = ''; }, 5000);
-  } catch (e) {
-    if (statusEl) statusEl.textContent = '更新請求失敗';
-  }
-}
-
-async function fetchAllWeather(dispatch = false) {
+async function fetchAllWeather() {
   const container = document.getElementById('cardsContainer');
   container.innerHTML = '<div class="loading">載入中...</div>';
-
-  if (dispatch) {
-    await triggerWorkflow();
-  }
 
   try {
     const res = await fetch(DATA_URL + '?t=' + Date.now());
