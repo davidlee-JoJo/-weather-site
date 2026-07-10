@@ -1,11 +1,11 @@
 const LOCATIONS = [
   { name: '台北北投', lat: '25.1167', lon: '121.5167' },
   { name: '新北汐止', lat: '25.0667', lon: '121.6333' },
-  { name: '嘉義太保', lat: '23.4667', lon: '120.3333' },
+  { name: '新北三重', lat: '25.0667', lon: '121.4667' },
   { name: '台北中山', lat: '25.0667', lon: '121.5333' },
   { name: '台北南港', lat: '25.0500', lon: '121.6000' },
-  { name: '新北三重', lat: '25.0667', lon: '121.4667' },
   { name: '桃園蘆竹', lat: '25.0500', lon: '121.3000' },
+  { name: '嘉義太保', lat: '23.4667', lon: '120.3333' },
 ];
 
 async function fetchLocation(name, lat, lon, apiKey) {
