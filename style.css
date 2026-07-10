@@ -133,6 +133,7 @@ main {
   transition: height 0.3s;
   background: linear-gradient(to top, #85c1e9, #2e86c1);
 }
+.rain-bar.zero { min-height: 0; background: transparent; }
 
 .rain-label {
   font-size: 9px;

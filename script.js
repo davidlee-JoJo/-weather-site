@@ -84,7 +84,7 @@ function renderCard(data, locName) {
     const wrap = document.createElement('div');
     wrap.className = 'rain-bar-wrap';
     const bar = document.createElement('div');
-    bar.className = 'rain-bar';
+    bar.className = 'rain-bar' + (pop === 0 ? ' zero' : '');
     bar.style.height = pop + '%';
     const label = document.createElement('div');
     label.className = 'rain-label';
