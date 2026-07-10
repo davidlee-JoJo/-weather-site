@@ -4,15 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>台灣天氣資訊</title>
-  <link rel="stylesheet" href="style.css?v=5">
+  <link rel="stylesheet" href="style.css?v=6">
 </head>
 <body>
   <header>
     <h1>台灣天氣資訊</h1>
     <div class="header-controls">
       <span class="update-time" id="updateTime"></span>
-      <button id="refreshBtn" onclick="fetchAllWeather(true)">重新整理</button>
-      <span id="refreshStatus" class="refresh-status"></span>
+      <button id="refreshBtn" onclick="fetchAllWeather()">重新整理</button>
     </div>
   </header>
   <main id="cardsContainer">
@@ -21,6 +20,6 @@
   <footer>
     <p>資料來源：WeatherAPI.com | 每 15 分鐘自動更新</p>
   </footer>
-  <script src="script.js?v=5"></script>
+  <script src="script.js?v=6"></script>
 </body>
 </html>
