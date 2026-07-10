@@ -157,12 +157,11 @@ async function fetchAllWeather() {
     const now = new Date();
     if (json.lastFetched) {
       const d = new Date(json.lastFetched);
-      updateEl.textContent = '最後更新：' + d.toLocaleString('zh-TW');
-    } else if (results.length > 0) {
+      updateEl.innerHTML = '自動更新：' + d.toLocaleString('zh-TW');
+    }
+    if (results.length > 0) {
       const obsTime = results[0].data.current.last_updated;
-      updateEl.textContent = '資料時間：' + obsTime;
-    } else {
-      updateEl.textContent = '最後更新：' + now.toLocaleString('zh-TW');
+      updateEl.innerHTML += ' | 資料時間：' + obsTime;
     }
   } catch (err) {
     container.innerHTML = `<div class="loading">載入失敗：${err.message}</div>`;
