@@ -146,7 +146,8 @@ async function fetchAllWeather() {
   try {
     const res = await fetch(DATA_URL + '?t=' + Date.now());
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const results = await res.json();
+    const json = await res.json();
+    const results = Array.isArray(json) ? json : json.data;
     container.innerHTML = '';
     results.forEach(item => {
       const card = renderCard(item.data, item.name);
@@ -154,7 +155,10 @@ async function fetchAllWeather() {
     });
     const updateEl = document.getElementById('updateTime');
     const now = new Date();
-    if (results.length > 0) {
+    if (json.lastFetched) {
+      const d = new Date(json.lastFetched);
+      updateEl.textContent = '最後更新：' + d.toLocaleString('zh-TW');
+    } else if (results.length > 0) {
       const obsTime = results[0].data.current.last_updated;
       updateEl.textContent = '資料時間：' + obsTime;
     } else {

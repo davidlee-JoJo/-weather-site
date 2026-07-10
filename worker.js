@@ -34,8 +34,10 @@ async function handleScheduled(event, env) {
     }
   }
 
+  const now = new Date().toISOString();
   await env.WEATHER_KV.put('weather-data', JSON.stringify(results));
-  console.log('Weather data stored in KV');
+  await env.WEATHER_KV.put('last-fetched', now);
+  console.log('Weather data stored in KV at ' + now);
 }
 
 async function handleRequest(request, env) {
@@ -49,14 +51,18 @@ async function handleRequest(request, env) {
   }
 
   if (url.pathname === '/api/weather') {
-    const data = await env.WEATHER_KV.get('weather-data', 'json');
+    const [data, lastFetched] = await Promise.all([
+      env.WEATHER_KV.get('weather-data', 'json'),
+      env.WEATHER_KV.get('last-fetched'),
+    ]);
     if (!data) {
       return new Response(JSON.stringify({ error: 'No data available' }), {
         status: 503,
         headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
       });
     }
-    return new Response(JSON.stringify(data), {
+    const result = { data, lastFetched };
+    return new Response(JSON.stringify(result), {
       headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
     });
   }
