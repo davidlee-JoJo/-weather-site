@@ -41,6 +41,13 @@ async function handleScheduled(event, env) {
 async function handleRequest(request, env) {
   const url = new URL(request.url);
 
+  if (url.pathname === '/api/refresh') {
+    await handleScheduled(null, env);
+    return new Response(JSON.stringify({ status: 'ok' }), {
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+    });
+  }
+
   if (url.pathname === '/api/weather') {
     const data = await env.WEATHER_KV.get('weather-data', 'json');
     if (!data) {
